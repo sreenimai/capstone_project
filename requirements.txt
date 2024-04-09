@@ -1,2 +1,7 @@
 imutils
 flask
+scipy
+numpy
+opencv-python
+dlib
+playsound==1.2.2
