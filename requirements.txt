@@ -3,5 +3,7 @@ flask
 scipy
 numpy
 opencv-python
+cmake
 dlib
 playsound==1.2.2
+`
