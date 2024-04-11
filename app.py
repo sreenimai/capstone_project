@@ -1,17 +1,45 @@
 from flask import Flask,redirect, url_for,render_template,request
 import os
 from index import d_dtcn
+from flask_cors import CORS
+import cv2
+import numpy as np
+from Drowsiness_Detection import get_landmarks
 import sqlite3
+import base64
 
 
 secret_key = str(os.urandom(24))
 
 app = Flask(__name__)
+CORS(app)
+
 app.config['TESTING'] = True
 app.config['DEBUG'] = True
 app.config['FLASK_ENV'] = 'development'
 app.config['SECRET_KEY'] = secret_key
 app.config['DEBUG'] = True
+
+
+
+def convert_base64_to_image(base64_image):
+    image_bytes = base64.b64decode(base64_image)
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return image
+
+
+@app.route('/get_landmarks', methods=['GET', 'POST'])
+def landmarks():
+    data = request.get_json()
+    base64_image = data.get("image")
+    image = convert_base64_to_image(base64_image)
+    landmarks = get_landmarks(image)
+    if landmarks:
+        return {"landmarks":landmarks,"status":"Detected"}
+    else:
+        return {"status":"Not detected"}
+
 
 @app.route('/')
 def hello_world():
@@ -78,8 +106,7 @@ def index():
     if request.method == 'POST':
         if request.form.get('Start') == 'Start':
             # pass
-            d_dtcn()
-            return render_template("index.html")
+           return redirect("http://localhost:3000")
     else:
         # pass # unknown
         return render_template("index.html")
